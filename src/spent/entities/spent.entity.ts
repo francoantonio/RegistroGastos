@@ -15,6 +15,8 @@ export class Spent extends Document {
   description: string;
   @Prop({
     unique: false,
+    type: Date,
+    default: Date.now,
   })
   date: string;
 }

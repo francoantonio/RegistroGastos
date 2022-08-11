@@ -1,6 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 import { CreateSpentDto } from './dto/create-spent.dto';
 import { UpdateSpentDto } from './dto/update-spent.dto';
 import { Spent } from './entities/spent.entity';
@@ -12,24 +17,49 @@ export class SpentService {
     private readonly SpentModel: Model<Spent>,
   ) {}
 
-  create(createSpentDto: CreateSpentDto) {
+  async create(createSpentDto: CreateSpentDto) {
+    createSpentDto.category = createSpentDto.category.map((cat) => {
+      return cat.toLowerCase();
+    });
     createSpentDto.description = createSpentDto.description.trim();
-    return createSpentDto;
+
+    try {
+      const spent = await this.SpentModel.create(createSpentDto);
+      return spent;
+    } catch (err) {
+      if (err.code === 11000) {
+        throw new BadRequestException(`Error al crear un Spent`);
+      }
+      console.log(err);
+      throw new InternalServerErrorException(
+        'cant create Spent - Check server logs',
+      );
+    }
   }
 
   findAll() {
-    return `This action returns all spent`;
+    return this.SpentModel.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} spent`;
+  async findOne(id: string) {
+    let spent: Spent;
+    if (isValidObjectId(id)) {
+      spent = await this.SpentModel.findById(id);
+    }
+
+    if (!spent) throw new NotFoundException(`spent with id,${id} not found`);
+    return spent;
   }
 
-  update(id: number, updateSpentDto: UpdateSpentDto) {
-    return `This action updates a #${id} spent`;
+  async update(id: string, updateSpentDto: UpdateSpentDto) {
+    const spent = await this.findOne(id);
+    if (spent) {
+      await spent.updateOne(updateSpentDto);
+    }
+    return { ...spent.toJSON(), ...updateSpentDto };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} spent`;
+  async remove(id: string) {
+    return { id };
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { SpentService } from './spent.service';
 import { CreateSpentDto } from './dto/create-spent.dto';
 import { UpdateSpentDto } from './dto/update-spent.dto';
@@ -19,16 +27,16 @@ export class SpentController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.spentService.findOne(+id);
+    return this.spentService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSpentDto: UpdateSpentDto) {
-    return this.spentService.update(+id, updateSpentDto);
+    return this.spentService.update(id, updateSpentDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.spentService.remove(+id);
+    return this.spentService.remove(id);
   }
 }
