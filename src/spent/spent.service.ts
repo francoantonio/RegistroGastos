@@ -60,6 +60,11 @@ export class SpentService {
   }
 
   async remove(id: string) {
-    return { id };
+    const { deletedCount } = await this.SpentModel.deleteOne({
+      _id: id,
+    });
+    if (deletedCount === 0)
+      throw new BadRequestException(`spent with id,${id} not found`);
+    return true;
   }
 }

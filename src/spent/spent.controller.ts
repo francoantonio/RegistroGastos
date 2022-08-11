@@ -10,6 +10,7 @@ import {
 import { SpentService } from './spent.service';
 import { CreateSpentDto } from './dto/create-spent.dto';
 import { UpdateSpentDto } from './dto/update-spent.dto';
+import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id.pipe';
 
 @Controller('spent')
 export class SpentController {
@@ -36,7 +37,7 @@ export class SpentController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.spentService.remove(id);
   }
 }
